@@ -114,7 +114,7 @@ public class GravityForce extends ApplicationAdapter {
 		}
 			rocket.translateX((float) (Math.cos(Math.toRadians(rocket.getRotation()+90)) * currentVelocity * Gdx.graphics.getDeltaTime()));
 			rocket.translateY((float) (Math.sin(Math.toRadians(rocket.getRotation()+90)) * currentVelocity * Gdx.graphics.getDeltaTime()));
-				rocket.setY(rocket.getY() + gravity * Gdx.graphics.getDeltaTime());
+			rocket.setY(rocket.getY() + gravity * Gdx.graphics.getDeltaTime());
 
 	}
 	public void keepRocketInScreen(){
