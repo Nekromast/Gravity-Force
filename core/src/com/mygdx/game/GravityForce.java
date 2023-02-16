@@ -2,7 +2,6 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -28,11 +27,6 @@ public class GravityForce extends ApplicationAdapter {
 
 	Sprite rocket;
 	Vector3 touchPos;
-
-	Integer MAX_VELOCITY = 200;
-	Integer gravity = -50;
-	Integer currentVelocity = 0;
-	boolean moving = false;
 
 
 	@Override
@@ -77,8 +71,18 @@ public class GravityForce extends ApplicationAdapter {
 		controlRocket();
 
 		// Rakete im Screen behalten
-		keepRocketInScreen();
-
+		if(rocket.getX() < 0) {
+			rocket.setX(0);
+		}
+		if(rocket.getX() > 800 - rocket.getWidth()) {
+			rocket.setX(800 - rocket.getWidth());
+		}
+		if(rocket.getY() < 0 - rocket.getHeight()/2) {
+			rocket.setY(-32);
+		}
+		if(rocket.getY() > 480-rocket.getHeight()) {
+			rocket.setY(480-rocket.getHeight());
+		}
 	}
 	public void controlRocket() {
 		// Schleife über alle Touchpoints (Finger 1 bis 5)
@@ -90,49 +94,15 @@ public class GravityForce extends ApplicationAdapter {
 			// Überprüfungen ob man auf die Buttons geklickt hat
 			if(leftButton.contains(touchPos.x, touchPos.y)) {
 				rocket.setRotation(rocket.getRotation() + 200 * Gdx.graphics.getDeltaTime());
+				System.out.println(rocket.getRotation());
 			}
 			if(rightButton.contains(touchPos.x, touchPos.y)) {
 				rocket.setRotation(rocket.getRotation() - 200 * Gdx.graphics.getDeltaTime());
 			}
 			if(boostButton.contains(touchPos.x, touchPos.y)) {
-				moving = true;
+				rocket.translateX((float) (Math.cos(Math.toRadians(rocket.getRotation()+90)) * 200 * Gdx.graphics.getDeltaTime()));
+				rocket.translateY((float) (Math.sin(Math.toRadians(rocket.getRotation()+90)) * 200 * Gdx.graphics.getDeltaTime()));
 			}
-		}
-		velocity(moving);
-		moving = false;
-	}
-
-	public void velocity(boolean moving){
-		if(moving){
-			if(currentVelocity < MAX_VELOCITY){
-				currentVelocity += 10;
-			}
-		}else{
-			if(currentVelocity > 0){
-				currentVelocity -= 5;
-			}
-		}
-			rocket.translateX((float) (Math.cos(Math.toRadians(rocket.getRotation()+90)) * currentVelocity * Gdx.graphics.getDeltaTime()));
-			rocket.translateY((float) (Math.sin(Math.toRadians(rocket.getRotation()+90)) * currentVelocity * Gdx.graphics.getDeltaTime()));
-				rocket.setY(rocket.getY() + gravity * Gdx.graphics.getDeltaTime());
-
-	}
-	public void keepRocketInScreen(){
-		// Linke Seite
-		if(rocket.getX() < 0) {
-			rocket.setX(0);
-		}
-		// Rechte Seite
-		if(rocket.getX() > 800 - rocket.getWidth()) {
-			rocket.setX(800 - rocket.getWidth());
-		}
-		// Boden
-		if(rocket.getY() < -32) {
-			rocket.setY(-32);
-		}
-		// Decke
-		if(rocket.getY() > 480-rocket.getHeight()) {
-			rocket.setY(480-rocket.getHeight());
 		}
 	}
 	
