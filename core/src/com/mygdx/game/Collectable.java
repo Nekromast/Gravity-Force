@@ -41,7 +41,9 @@ public class Collectable {
     }
 
     public Sprite getCollectable(){
+        System.out.println("Collectable: " + collectable);
         return collectable;
+
     }
 
 
