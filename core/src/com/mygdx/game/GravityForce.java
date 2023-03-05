@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -53,6 +54,7 @@ public class GravityForce implements Screen {
 
     //Soundvariablen
     static Sound thrust_sound;
+    static Music background_music;
     long sound_id;
     float volume;
     boolean wasPlayed;
@@ -92,11 +94,16 @@ public class GravityForce implements Screen {
         volume = 0.5f;
         wasPlayed = false;
         soundbuffer = 0;
+
+        //Background Music
+        background_music = Gdx.audio.newMusic(Gdx.files.internal("background_music.mp3"));
     }
 
     @Override
     public void show() {
-
+        background_music.setLooping(true);
+        background_music.setVolume(0.5f);
+        background_music.play();
     }
 
     @Override
@@ -116,7 +123,7 @@ public class GravityForce implements Screen {
         controlRocket();
 
         // Rakete im Screen behalten
-        //keepRocketInScreen();
+        keepRocketInScreen();
 
         playThrustSound();
 
@@ -226,11 +233,11 @@ public class GravityForce implements Screen {
         soundbuffer += Gdx.graphics.getDeltaTime();
 
         // Abspielen des Tons bei der ersten Bewegung & nach Bufferzeit
-        if (!wasPlayed && soundbuffer > 2) {
+        if (!wasPlayed && soundbuffer > 3) {
             sound_id = thrust_sound.play(volume);
             thrust_sound.setLooping(sound_id, true);
             wasPlayed = true;
-            System.out.println("Played :" + soundbuffer);
+
         }
 
         //Bei Bewegung wird der Sound lauter
