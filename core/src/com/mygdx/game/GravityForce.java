@@ -8,9 +8,12 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.mygdx.game.map.maploader;
 
 public class GravityForce implements Screen {
 
@@ -92,6 +95,15 @@ public class GravityForce implements Screen {
         volume = 0.5f;
         wasPlayed = false;
         soundbuffer = 0;
+
+        //Karte
+        maploader gmap = new maploader();
+        TiledMap map = gmap.getMap();
+        OrthogonalTiledMapRenderer maprend = gmap.getRenderer();
+        /*maprend.setView(camera);
+        camera.setToOrtho(false,10,10);
+        */
+
     }
 
     @Override
