@@ -16,12 +16,18 @@ public class AndroidLauncher extends AndroidApplication {
 		config.useAccelerometer = false;
 		config.useCompass = false;
 
-		initialize(new Game(), config);
+		//initialize(new Game(), config);
 
-
+		initializeForView(new Game(), config);
 		//MainMenu per XML View
-		//setContentView(R.layout.mainmenu);
-		//initializeForView(new Game(), config);
+		setContentView(R.layout.mainmenu);
+		Button startButton = findViewById(R.id.button_start);
+		startButton.setOnClickListener(v -> {
+			AndroidApplicationConfiguration config1 = new AndroidApplicationConfiguration();
+			config1.useAccelerometer = false;
+			config1.useCompass = false;
+			initialize(new Game(), config1);
+		});
 
 	}
 }
