@@ -2,6 +2,8 @@ package com.mygdx.game.map;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -15,27 +17,27 @@ import com.sun.tools.javac.code.Attribute;
 public class maploader {
 
     private TiledMap map;
-    private TmxMapLoader loader;
     private OrthogonalTiledMapRenderer renderer;
     private float unitscale;
+    private AssetManager assetManager;
 
 
 
     public maploader() {
-        loader = new TmxMapLoader();
         unitscale = 1 / 32f;
-        map = loader.load("/testmap.tmx");
-        renderer = new OrthogonalTiledMapRenderer(map,unitscale);
+        assetManager = new AssetManager();
+        assetManager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
+        assetManager.load("testmap.tmx",TiledMap.class);
+
 
     }
 
+    public AssetManager getAssetManager() {
+        return assetManager;
+    }
 
     public TiledMap getMap () {
-        return map;
-    }
-
-    public OrthogonalTiledMapRenderer getRenderer() {
-        return renderer;
+        return assetManager.get("testmap.tmx");
     }
 
     public float getunitscale() {

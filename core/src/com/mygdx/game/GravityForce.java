@@ -61,6 +61,10 @@ public class GravityForce implements Screen {
     boolean wasPlayed;
     float soundbuffer;
 
+
+    maploader gmap;
+
+
     public GravityForce(final Game game) {
 
         rock = new Rocket();
@@ -97,12 +101,10 @@ public class GravityForce implements Screen {
         soundbuffer = 0;
 
         //Karte
-        maploader gmap = new maploader();
-        TiledMap map = gmap.getMap();
-        OrthogonalTiledMapRenderer maprend = gmap.getRenderer();
-        /*maprend.setView(camera);
-        camera.setToOrtho(false,10,10);
-        */
+        gmap = new maploader();
+        //camera.setToOrtho(false,10,10);
+
+
 
     }
 
@@ -113,42 +115,49 @@ public class GravityForce implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(Color.GRAY);
-        camera.update();
-        //Kamera folgt der Rakete
-        position = camera.position;
-        position.x += (rocket.getX() - position.x) * lerp;
-        position.y += (rocket.getY() - position.y) * lerp;
-        camera.position.set(position.x, position.y, 0);
+        if(gmap.getAssetManager().update()) {
+            TiledMap map = gmap.getMap();
+            OrthogonalTiledMapRenderer tMapRend = new OrthogonalTiledMapRenderer(map,gmap.getunitscale());
 
-        //Animation der Engine
-        rock.update(Gdx.graphics.getDeltaTime());
+            ScreenUtils.clear(Color.GRAY);
+            camera.update();
+            //Kamera folgt der Rakete
+            position = camera.position;
+            position.x += (rocket.getX() - position.x) * lerp;
+            position.y += (rocket.getY() - position.y) * lerp;
+            camera.position.set(position.x, position.y, 0);
+            tMapRend.setView(camera);
+            tMapRend.render();
+            //Animation der Engine
+            rock.update(Gdx.graphics.getDeltaTime());
 
-        // Steuerung der Rakete
-        controlRocket();
+            // Steuerung der Rakete
+            controlRocket();
 
-        // Rakete im Screen behalten
-        //keepRocketInScreen();
+            // Rakete im Screen behalten
+            //keepRocketInScreen();
 
-        playThrustSound();
+            playThrustSound();
 
-        //Rakete und Background werden projiziert
-        batch.setProjectionMatrix(camera.combined);
-        batch.begin();
-        batch.draw(background, -100, -100, 3840, 2160);
-        rocket.draw(batch);
-        if (moving) rocketEngineSprite.draw(batch);
-        batch.end();
+            //Rakete und Background werden projiziert
+            batch.setProjectionMatrix(camera.combined);
+            batch.begin();
+            batch.draw(background, -100, -100, 3840, 2160);
+            rocket.draw(batch);
+            if (moving) rocketEngineSprite.draw(batch);
+            batch.end();
 
-        //Das UI wird projiziert
-        uiBatch.setProjectionMatrix(uicamera.combined);
-        uiBatch.begin();
-        uiBatch.draw(leftArrow, leftButton.x, leftButton.y, leftButton.width, leftButton.height);
-        uiBatch.draw(rightArrow, rightButton.x, rightButton.y, rightButton.width, rightButton.height);
-        uiBatch.draw(boostTexture, boostButton.x, boostButton.y, boostButton.width, boostButton.height);
-        uiBatch.end();
+            //Das UI wird projiziert
+            uiBatch.setProjectionMatrix(uicamera.combined);
+            uiBatch.begin();
+            uiBatch.draw(leftArrow, leftButton.x, leftButton.y, leftButton.width, leftButton.height);
+            uiBatch.draw(rightArrow, rightButton.x, rightButton.y, rightButton.width, rightButton.height);
+            uiBatch.draw(boostTexture, boostButton.x, boostButton.y, boostButton.width, boostButton.height);
+            uiBatch.end();
 
-        moving = false;
+            moving = false;
+        }
+        float progress = gmap.getAssetManager().getProgress();
     }
 
     @Override
