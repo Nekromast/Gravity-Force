@@ -29,6 +29,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    dependencies {
+        implementation 'com.android.support.constraint:constraint-layout:2.0.4'
+    }
 }
 
 
