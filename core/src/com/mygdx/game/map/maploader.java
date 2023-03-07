@@ -18,13 +18,12 @@ public class maploader {
 
     private TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
-    private float unitscale;
     private AssetManager assetManager;
 
 
 
     public maploader() {
-        unitscale = 1 / 32f;
+
         assetManager = new AssetManager();
         assetManager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
         assetManager.load("testmap.tmx",TiledMap.class);
@@ -40,8 +39,12 @@ public class maploader {
         return assetManager.get("testmap.tmx");
     }
 
-    public float getunitscale() {
-        return unitscale;
+    //public float getunitscale() {
+    //    return unitscale;
+    //}
+
+    public void dispose() {
+        assetManager.dispose();
     }
 }
 
