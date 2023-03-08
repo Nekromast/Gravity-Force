@@ -29,6 +29,7 @@ public class GravityForce implements Screen {
     Rocket rock;
 
     static Sprite rocket;
+    Rectangle rocketrect;
     Sprite rocketEngineSprite;
     SpriteBatch batch;
     SpriteBatch uiBatch;
@@ -129,23 +130,27 @@ public class GravityForce implements Screen {
     public void render(float delta) {
         if(gmap.getAssetManager().update()) {
             map = gmap.getMap();
-            tMapRend = new OrthogonalTiledMapRenderer(map, MAPSCALE);
+            tMapRend = new OrthogonalTiledMapRenderer(map);
             //ScreenUtils.clear(Color.GRAY);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
             camera.update();
             tMapRend.setView(camera);
+
             //Kamera folgt der Rakete
             position = camera.position;
             position.x += (rocket.getX() - position.x) * lerp;
             position.y += (rocket.getY() - position.y) * lerp;
             camera.position.set(position.x, position.y, 0);
-
+            rocketrect = rocket.getBoundingRectangle();
 
             //Animation der Engine
             rock.update(Gdx.graphics.getDeltaTime());
 
             // Steuerung der Rakete
             controlRocket();
+
+            //map wird gerendert
+            tMapRend.render();
 
             // Rakete im Screen behalten
             //keepRocketInScreen();
@@ -167,9 +172,10 @@ public class GravityForce implements Screen {
             uiBatch.draw(rightArrow, rightButton.x, rightButton.y, rightButton.width, rightButton.height);
             uiBatch.draw(boostTexture, boostButton.x, boostButton.y, boostButton.width, boostButton.height);
             uiBatch.end();
-            tMapRend.render();
+
 
             moving = false;
+            System.out.println(mapcollision());
         }
         float progress = gmap.getAssetManager().getProgress();
     }
@@ -293,23 +299,18 @@ public class GravityForce implements Screen {
 
                 MapObject mapObject = cellObjects.get(0);
 
-
-                if (mapObject instanceof RectangleMapObject) {
+                if (mapObject instanceof RectangleMapObject)
+                {
                     RectangleMapObject rectangleObject = (RectangleMapObject) mapObject;
                     Rectangle rectangle = rectangleObject.getRectangle();
-                    if (rectangle.overlaps(rocket.getBoundingRectangle())){
+                    if (rectangle.overlaps(rocketrect)) {
                         return true;
+
+
                     }
-                } else if (mapObject instanceof EllipseMapObject) {
-                    EllipseMapObject circleMapObject = (EllipseMapObject) mapObject;
-                    Ellipse ellipse = circleMapObject.getEllipse();
-                    return false;
-                } else if (mapObject instanceof PolygonMapObject) {
-                    PolygonMapObject polygonMapObject = (PolygonMapObject) mapObject;
-                    Polygon polygon = polygonMapObject.getPolygon();
-                    return false;
                 }
             }
+
         }
         return false;
     }
