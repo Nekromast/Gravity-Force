@@ -74,6 +74,7 @@ public class GravityForce implements Screen {
     maploader gmap;
     TiledMap map;
     OrthogonalTiledMapRenderer tMapRend;
+    static int MAPSCALE = 8;
 
 
     public GravityForce(final Game game) {
@@ -128,8 +129,7 @@ public class GravityForce implements Screen {
     public void render(float delta) {
         if(gmap.getAssetManager().update()) {
             map = gmap.getMap();
-            tMapRend = new OrthogonalTiledMapRenderer(map);
-
+            tMapRend = new OrthogonalTiledMapRenderer(map, MAPSCALE);
             //ScreenUtils.clear(Color.GRAY);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
             camera.update();
