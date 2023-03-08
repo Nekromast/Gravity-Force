@@ -2,10 +2,14 @@ package com.mygdx.game;
 
 public class Game extends com.badlogic.gdx.Game {
     GravityForce gravityForce;
+    GameOverListener gameOverListener;
+    public void setListener(GameOverListener listener) {
+        gameOverListener = listener;
+    }
     @Override
     public void create() {
-        //this.setScreen(new MainMenuScreen(this));
         gravityForce = new GravityForce(this);
+        gravityForce.setListener(gameOverListener);
         this.setScreen(gravityForce);
     }
     @Override
@@ -16,5 +20,6 @@ public class Game extends com.badlogic.gdx.Game {
     public void dispose() {
         super.dispose();
     }
+
 
 }

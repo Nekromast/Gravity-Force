@@ -28,7 +28,6 @@ import com.mygdx.game.map.maploader;
 public class GravityForce implements Screen {
 
     Rocket rock;
-    boolean isGameOver = false;
 
     static Sprite rocket;
     Sprite rocketEngineSprite;
@@ -79,8 +78,13 @@ public class GravityForce implements Screen {
     OrthogonalTiledMapRenderer tMapRend;
     static int MAPSCALE = 8;
 
+    // Game Over
+    boolean isGameOver;
+    public GameOverListener gameOverListener;
+
 
     public GravityForce(final Game game) {
+        isGameOver = false;
 
         rock = new Rocket();
 
@@ -123,7 +127,6 @@ public class GravityForce implements Screen {
         //camera.setToOrtho(false,100,100);
 
 
-
     }
 
     @Override
@@ -135,7 +138,8 @@ public class GravityForce implements Screen {
 
     @Override
     public void render(float delta) {
-        if(gmap.getAssetManager().update()) {
+        if(isGameOver) return;
+        if (gmap.getAssetManager().update()) {
             map = gmap.getMap();
             tMapRend = new OrthogonalTiledMapRenderer(map, MAPSCALE);
             //ScreenUtils.clear(Color.GRAY);
@@ -148,14 +152,14 @@ public class GravityForce implements Screen {
             position.y += (rocket.getY() - position.y) * lerp;
             camera.position.set(position.x, position.y, 0);
 
-        //Animation der Engine
-        rock.update(Gdx.graphics.getDeltaTime());
+            //Animation der Engine
+            rock.update(Gdx.graphics.getDeltaTime());
 
-        // Steuerung der Rakete
-        controlRocket();
+            // Steuerung der Rakete
+            controlRocket();
 
-        // Rakete im Screen behalten
-        //keepRocketInScreen();
+            // Rakete im Screen behalten
+            //keepRocketInScreen();
 
             playThrustSound();
 
@@ -262,6 +266,7 @@ public class GravityForce implements Screen {
         // Decke
         if (rocket.getY() > 480 - rocket.getHeight()) {
             rocket.setY(480 - rocket.getHeight());
+            setGameOver(true);
         }
     }
 
@@ -285,10 +290,9 @@ public class GravityForce implements Screen {
         //Bei Stillstand wird der Sound schnell leiser
         if (volume - 2 * Gdx.graphics.getDeltaTime() > 0 && !moving)
             thrust_sound.setVolume(sound_id, volume -= 2 * Gdx.graphics.getDeltaTime());
-        System.out.println(volume);
     }
 
-    public boolean mapcollision () {
+    public boolean mapcollision() {
         TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(0);
         for (int x = 0; x < layer.getWidth(); x++) {
             for (int y = 0; y < layer.getHeight(); y++) {
@@ -306,7 +310,7 @@ public class GravityForce implements Screen {
                 if (mapObject instanceof RectangleMapObject) {
                     RectangleMapObject rectangleObject = (RectangleMapObject) mapObject;
                     Rectangle rectangle = rectangleObject.getRectangle();
-                    if (rectangle.overlaps(rocket.getBoundingRectangle())){
+                    if (rectangle.overlaps(rocket.getBoundingRectangle())) {
                         return true;
                     }
                 } else if (mapObject instanceof EllipseMapObject) {
@@ -323,6 +327,17 @@ public class GravityForce implements Screen {
         return false;
     }
 
+    public void setListener(GameOverListener listener) {
+        this.gameOverListener = listener;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        isGameOver = gameOver;
+        if (gameOverListener != null) {
+            gameOverListener.onGameOverChanged(gameOver);
+        }
+    }
+
     @Override
     public void dispose() {
         batch.dispose();
@@ -333,8 +348,10 @@ public class GravityForce implements Screen {
         rightArrow.dispose();
         boostTexture.dispose();
         background.dispose();
+        background_music.dispose();
         thrust_sound.dispose();
         gmap.dispose();
         rock.dispose();
+
     }
 }
