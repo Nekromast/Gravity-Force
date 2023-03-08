@@ -28,6 +28,7 @@ import com.mygdx.game.map.maploader;
 public class GravityForce implements Screen {
 
     Rocket rock;
+    boolean isGameOver = false;
 
     static Sprite rocket;
     Sprite rocketEngineSprite;
@@ -332,6 +333,6 @@ public class GravityForce implements Screen {
         background.dispose();
         thrust_sound.dispose();
         gmap.dispose();
-
+        rock.dispose();
     }
 }

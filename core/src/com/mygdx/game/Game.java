@@ -1,10 +1,12 @@
 package com.mygdx.game;
 
 public class Game extends com.badlogic.gdx.Game {
+    GravityForce gravityForce;
     @Override
     public void create() {
         //this.setScreen(new MainMenuScreen(this));
-        this.setScreen(new GravityForce(this));
+        gravityForce = new GravityForce(this);
+        this.setScreen(gravityForce);
     }
     @Override
     public void render() {
@@ -12,5 +14,7 @@ public class Game extends com.badlogic.gdx.Game {
     }
     @Override
     public void dispose() {
+        super.dispose();
     }
+
 }
