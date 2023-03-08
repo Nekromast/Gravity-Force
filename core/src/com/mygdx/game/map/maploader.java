@@ -18,7 +18,7 @@ public class maploader {
 
     private TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
-    private AssetManager assetManager;
+    private final AssetManager assetManager;
 
 
 

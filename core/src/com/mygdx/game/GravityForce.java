@@ -9,12 +9,14 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.EllipseMapObject;
 import com.badlogic.gdx.maps.objects.PolygonMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Ellipse;
@@ -75,7 +77,8 @@ public class GravityForce implements Screen {
     maploader gmap;
     TiledMap map;
     OrthogonalTiledMapRenderer tMapRend;
-    static int MAPSCALE = 8;
+    private ShapeRenderer rocketrend;
+    private ShapeRenderer rectrender;
 
 
     public GravityForce(final Game game) {
@@ -115,8 +118,6 @@ public class GravityForce implements Screen {
 
         //Karte
         gmap = new maploader();
-        //camera.setToOrtho(false,100,100);
-
 
 
     }
@@ -134,15 +135,16 @@ public class GravityForce implements Screen {
             //ScreenUtils.clear(Color.GRAY);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
             camera.update();
-            tMapRend.setView(camera);
+
 
             //Kamera folgt der Rakete
             position = camera.position;
             position.x += (rocket.getX() - position.x) * lerp;
             position.y += (rocket.getY() - position.y) * lerp;
             camera.position.set(position.x, position.y, 0);
-            rocketrect = rocket.getBoundingRectangle();
 
+            //Rechteck der Rakte für Kollisionen
+            rocketrect = rocket.getBoundingRectangle();
             //Animation der Engine
             rock.update(Gdx.graphics.getDeltaTime());
 
@@ -150,13 +152,14 @@ public class GravityForce implements Screen {
             controlRocket();
 
             //map wird gerendert
+            tMapRend.setView(camera);
             tMapRend.render();
 
             // Rakete im Screen behalten
             //keepRocketInScreen();
 
             playThrustSound();
-
+            mapcollision();
             //Rakete und Background werden projiziert
             batch.setProjectionMatrix(camera.combined);
             batch.begin();
@@ -166,6 +169,7 @@ public class GravityForce implements Screen {
             batch.end();
 
             //Das UI wird projiziert
+
             uiBatch.setProjectionMatrix(uicamera.combined);
             uiBatch.begin();
             uiBatch.draw(leftArrow, leftButton.x, leftButton.y, leftButton.width, leftButton.height);
@@ -175,7 +179,7 @@ public class GravityForce implements Screen {
 
 
             moving = false;
-            System.out.println(mapcollision());
+            //mapcollision();
         }
         float progress = gmap.getAssetManager().getProgress();
     }
@@ -284,36 +288,22 @@ public class GravityForce implements Screen {
             thrust_sound.setVolume(sound_id, volume -= 2 * Gdx.graphics.getDeltaTime());
         System.out.println(volume);
     }
-
-    public boolean mapcollision () {
+    public void mapcollision () {
         TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(0);
         for (int x = 0; x < layer.getWidth(); x++) {
             for (int y = 0; y < layer.getHeight(); y++) {
                 TiledMapTileLayer.Cell cell = layer.getCell(x, y);
-                if (cell == null)
-                    continue;
-
-                MapObjects cellObjects = cell.getTile().getObjects();
-                if (cellObjects.getCount() != 1)
-                    continue;
-
-                MapObject mapObject = cellObjects.get(0);
-
-                if (mapObject instanceof RectangleMapObject)
-                {
-                    RectangleMapObject rectangleObject = (RectangleMapObject) mapObject;
-                    Rectangle rectangle = rectangleObject.getRectangle();
-                    if (rectangle.overlaps(rocketrect)) {
-                        return true;
-
-
-                    }
+                if (cell == null) continue;
+                TiledMapTile tile = cell.getTile();
+                if (tile == null) continue;
+                Rectangle tileBounds = new Rectangle(x * tile.getTextureRegion().getRegionWidth(), y * tile.getTextureRegion().getRegionHeight(), tile.getTextureRegion().getRegionWidth(), tile.getTextureRegion().getRegionHeight());
+                if (rocketrect.overlaps(tileBounds)) {
+                    //hier was bei Kollision passieren soll
                 }
             }
-
         }
-        return false;
     }
+
 
     @Override
     public void dispose() {
@@ -327,6 +317,10 @@ public class GravityForce implements Screen {
         background.dispose();
         thrust_sound.dispose();
         gmap.dispose();
+        tMapRend.dispose();
+        rectrender.dispose();
+        rocketrend.dispose();
+
 
     }
 }
