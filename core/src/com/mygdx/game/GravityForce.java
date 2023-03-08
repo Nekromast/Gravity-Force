@@ -162,9 +162,11 @@ public class GravityForce implements Screen {
             //Rakete und Background werden projiziert
             batch.setProjectionMatrix(camera.combined);
             batch.begin();
+            tMapRend.render();
             //(background, -100, -100, 3840, 2160);
             rocket.draw(batch);
             if (moving) rocketEngineSprite.draw(batch);
+
             batch.end();
 
             //Das UI wird projiziert
@@ -174,7 +176,7 @@ public class GravityForce implements Screen {
             uiBatch.draw(rightArrow, rightButton.x, rightButton.y, rightButton.width, rightButton.height);
             uiBatch.draw(boostTexture, boostButton.x, boostButton.y, boostButton.width, boostButton.height);
             uiBatch.end();
-            tMapRend.render();
+
 
             moving = false;
         }
