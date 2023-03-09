@@ -22,8 +22,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.mygdx.game.map.maploader;
 
-import java.util.Iterator;
-
 
 public class GravityForce implements Screen {
 
@@ -85,6 +83,7 @@ public class GravityForce implements Screen {
     //Map
     maploader gmap;
     TiledMap map;
+    int MAPSCALE = 4;
     OrthogonalTiledMapRenderer tMapRend;
     boolean incomingCollision;
 
@@ -134,7 +133,7 @@ public class GravityForce implements Screen {
         //Die Rectangles für die Control Buttons
         leftButton = new Rectangle(0, 0, 80, 80);
         rightButton = new Rectangle(100, 0, 80, 80);
-        boostButton = new Rectangle(700, 0, 100, 100);
+        boostButton = new Rectangle(DISPLAY_WIDTH-100, 0, 100, 100);
         touchPos = new Vector3();
 
         //Health
@@ -162,10 +161,10 @@ public class GravityForce implements Screen {
         map = loader.load("testmapc.tmx");
 
         for (MapObject object : map.getLayers().get("objects").getObjects()) {
-            float x = object.getProperties().get("x", Float.class);
-            float y = object.getProperties().get("y", Float.class);
-            float width = object.getProperties().get("width", Float.class);
-            float height = object.getProperties().get("height", Float.class);
+            float x = object.getProperties().get("x", Float.class) * MAPSCALE;
+            float y = object.getProperties().get("y", Float.class) * MAPSCALE;
+            float width = object.getProperties().get("width", Float.class) * MAPSCALE;
+            float height = object.getProperties().get("height", Float.class) * MAPSCALE;
             collectables.addCollectable(x, y, width, height);
         }
 
@@ -182,7 +181,7 @@ public class GravityForce implements Screen {
     public void render(float delta) {
         if (isGameOver) return;
         //map = gmap.getMap();
-        tMapRend = new OrthogonalTiledMapRenderer(map);
+        tMapRend = new OrthogonalTiledMapRenderer(map, MAPSCALE);
         //ScreenUtils.clear(Color.GRAY);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         camera.update();
@@ -202,7 +201,6 @@ public class GravityForce implements Screen {
 
 
         // Steuerung und Kollision der Rakete
-        calcOldRocketPosition();
         controlRocket();
         velocity(isMoving);
         //velocitySplit(isMoving);
@@ -227,10 +225,13 @@ public class GravityForce implements Screen {
         if (isMoving) rocketEngineSprite.draw(batch);
 
 
-        for (Sprite coin : collectables.getCollectables()) {
-            coin.draw(batch);
+        for (Sprite landing_area : collectables.getLandingAreas()) {
+            landing_area.draw(batch);
         }
-        collectables.updateCollectable(rocket.getBoundingRectangle());
+        for(Sprite goldCoin : collectables.getCollectables()) {
+            goldCoin.draw(batch);
+        }
+        collectables.updateCollectable(rocket);
 
         batch.end();
 
@@ -387,11 +388,6 @@ public class GravityForce implements Screen {
             thrust_sound.setVolume(sound_id, volume -= 2 * Gdx.graphics.getDeltaTime());
     }
 
-    public void calcOldRocketPosition() {
-        rocketOldX = rocket.getX();
-        rocketOldY = rocket.getY();
-    }
-
     public void mapcollision() {
         TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(0);
         for (int x = 0; x < layer.getWidth(); x++) {
@@ -401,19 +397,16 @@ public class GravityForce implements Screen {
                 TiledMapTile tile = cell.getTile();
                 if (tile == null) continue;
                 Rectangle tileBounds = new Rectangle(
-                        x * tile.getTextureRegion().getRegionWidth(),
-                        y * tile.getTextureRegion().getRegionHeight(),
-                        tile.getTextureRegion().getRegionWidth(),
-                        tile.getTextureRegion().getRegionHeight());
+                        x * tile.getTextureRegion().getRegionWidth() * MAPSCALE,
+                        y * tile.getTextureRegion().getRegionHeight() * MAPSCALE,
+                        tile.getTextureRegion().getRegionWidth() * MAPSCALE,
+                        tile.getTextureRegion().getRegionHeight() * MAPSCALE);
 
                 if (rocketrect.overlaps(tileBounds)) {
                     //hier was bei Kollision passieren soll
                     damage();
                     //incomingCollision = true;
-                    //rocket.setPosition(rocketOldX, rocketOldY);
-                    //Weitere Überprüfungen von Kollision überflüssig (vlt doch bei engem Raum)
                     return;
-
                 }
             }
         }
