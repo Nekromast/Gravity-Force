@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class Rocket {
+    public float deltaX;
+    public float deltaY;
     Texture rocketImage;
     Texture rocketEngine;
 
@@ -21,6 +23,9 @@ public class Rocket {
     private static final float FRAME_DURATION = 0.125f;
     float stateTime;
 
+    //Health
+    public static double health ;
+
 
     public Rocket(){
         //Rocket initialisieren
@@ -29,6 +34,7 @@ public class Rocket {
         rocket.setScale(ROCKET_SCALE);
         rocket.setX(400 -32);
         rocket.setY(240 -32);
+        health = 100;
 
         //Rocket Engine initialisieren
         rocketEngine = new Texture("Nairan - Battlecruiser - Engine.png");
@@ -59,6 +65,13 @@ public class Rocket {
     }
     public Sprite getRocketEngine(){
         return rocketEngineSprite;
+    }
+
+    public void setHealth(double newHealth){
+        health = newHealth;
+    }
+    public double getHealth(){
+        return health;
     }
 
 

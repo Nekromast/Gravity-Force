@@ -4,27 +4,18 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapObjects;
-import com.badlogic.gdx.maps.objects.EllipseMapObject;
-import com.badlogic.gdx.maps.objects.PolygonMapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Ellipse;
-import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.map.maploader;
 
 public class GravityForce implements Screen {
@@ -58,7 +49,7 @@ public class GravityForce implements Screen {
     Integer GRAVITY = -50;
     Integer THRUST = 125;
 
-    static boolean moving = false;
+    static boolean isMoving = false;
 
     //Kamera Variablen fürs Folgen der Rakete
     float lerp = 0.05f;
@@ -81,6 +72,10 @@ public class GravityForce implements Screen {
     OrthogonalTiledMapRenderer tMapRend;
     private ShapeRenderer rocketrend;
     private ShapeRenderer rectrender;
+
+    //Kollisionsvariablen
+    float tempX;
+    float tempY;
 
     // Game Over
     boolean isGameOver;
@@ -140,7 +135,7 @@ public class GravityForce implements Screen {
 
     @Override
     public void render(float delta) {
-        if(isGameOver) return;
+        if (isGameOver) return;
         if (gmap.getAssetManager().update()) {
             map = gmap.getMap();
             tMapRend = new OrthogonalTiledMapRenderer(map);
@@ -179,7 +174,7 @@ public class GravityForce implements Screen {
             batch.begin();
             //(background, -100, -100, 3840, 2160);
             rocket.draw(batch);
-            if (moving) rocketEngineSprite.draw(batch);
+            if (isMoving) rocketEngineSprite.draw(batch);
             batch.end();
 
             //Das UI wird projiziert
@@ -191,7 +186,7 @@ public class GravityForce implements Screen {
             uiBatch.end();
 
 
-            moving = false;
+            isMoving = false;
         }
         float progress = gmap.getAssetManager().getProgress();
     }
@@ -232,14 +227,14 @@ public class GravityForce implements Screen {
                 rocketEngineSprite.setRotation(rocket.getRotation() - THRUST * Gdx.graphics.getDeltaTime());
             }
             if (boostButton.contains(touchPos.x, touchPos.y)) {
-                moving = true;
+                isMoving = true;
             }
         }
-        velocity(moving);
+        velocity(isMoving);
     }
 
-    public void velocity(boolean moving) {
-        if (moving) {
+    public void velocity(boolean isMoving) {
+        if (isMoving) {
             if (CURRENT_VELOCITY < MAX_VELOCITY) {
                 CURRENT_VELOCITY += 10;
             }
@@ -248,6 +243,9 @@ public class GravityForce implements Screen {
                 CURRENT_VELOCITY -= 5;
             }
         }
+        float oldX = rocket.getX();
+        float oldY = rocket.getY();
+
         // Bewegung der Rakete
         rocket.translateX((float) (Math.cos(Math.toRadians(rocket.getRotation() + 90)) * CURRENT_VELOCITY * Gdx.graphics.getDeltaTime()));
         rocket.translateY((float) (Math.sin(Math.toRadians(rocket.getRotation() + 90)) * CURRENT_VELOCITY * Gdx.graphics.getDeltaTime()));
@@ -256,6 +254,9 @@ public class GravityForce implements Screen {
         // Gravitation
         rocket.setY(rocket.getY() + GRAVITY * Gdx.graphics.getDeltaTime());
 
+        //Alte Position der Rakete abspeichern
+        rock.deltaX = rocket.getX() - oldX;
+        rock.deltaY = rocket.getY() - oldY;
 
     }
 
@@ -292,15 +293,16 @@ public class GravityForce implements Screen {
         }
 
         //Bei Bewegung wird der Sound lauter
-        if (moving && volume + 0.75f * Gdx.graphics.getDeltaTime() < 1) {
+        if (isMoving && volume + 0.75f * Gdx.graphics.getDeltaTime() < 1) {
             thrust_sound.setVolume(sound_id, volume += 0.75f * Gdx.graphics.getDeltaTime());
         }
 
         //Bei Stillstand wird der Sound schnell leiser
-        if (volume - 2 * Gdx.graphics.getDeltaTime() > 0 && !moving)
+        if (volume - 2 * Gdx.graphics.getDeltaTime() > 0 && !isMoving)
             thrust_sound.setVolume(sound_id, volume -= 2 * Gdx.graphics.getDeltaTime());
     }
-    public void mapcollision () {
+
+    public void mapcollision() {
         TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(0);
         for (int x = 0; x < layer.getWidth(); x++) {
             for (int y = 0; y < layer.getHeight(); y++) {
@@ -308,11 +310,64 @@ public class GravityForce implements Screen {
                 if (cell == null) continue;
                 TiledMapTile tile = cell.getTile();
                 if (tile == null) continue;
-                Rectangle tileBounds = new Rectangle(x * tile.getTextureRegion().getRegionWidth(), y * tile.getTextureRegion().getRegionHeight(), tile.getTextureRegion().getRegionWidth(), tile.getTextureRegion().getRegionHeight());
+                Rectangle tileBounds = new Rectangle(
+                        x * tile.getTextureRegion().getRegionWidth(),
+                        y * tile.getTextureRegion().getRegionHeight(),
+                        tile.getTextureRegion().getRegionWidth(),
+                        tile.getTextureRegion().getRegionHeight());
+
                 if (rocketrect.overlaps(tileBounds)) {
                     //hier was bei Kollision passieren soll
+                    //damaged();
+
+                    boolean collisionX = Math.abs(rock.deltaX) > Math.abs(rock.deltaY);
+
+                    // Calculate distance to move back
+                    float distanceToMoveBack;
+                    if (collisionX) {
+                        if (rock.deltaX > 0) {
+                            distanceToMoveBack = rocket.getX() + rocket.getWidth()*3/4 - tileBounds.getX();
+                            System.out.println(1);
+                        } else {
+                            distanceToMoveBack = tileBounds.getX() - rocket.getX();
+                            System.out.println(2);
+                        }
+                    } else {
+                        if (rock.deltaY > 0) {
+                            distanceToMoveBack = rocket.getY() + rocket.getHeight()*3/4 - tileBounds.getY();
+                            System.out.println(3);
+                        } else {
+                            distanceToMoveBack = tileBounds.getY() - rocket.getY();
+                            System.out.println(4);
+                        }
+                    }
+
+                    // Move rocket back
+                    if (collisionX) {
+                        if (rock.deltaX > 0) {
+                            rocket.setPosition(rocket.getX() - distanceToMoveBack, rocket.getY());
+                        } else {
+                            rocket.setPosition(rocket.getX() + distanceToMoveBack, rocket.getY());
+                        }
+                    } else {
+                        if (rock.deltaY > 0) {
+                            rocket.setPosition(rocket.getX(), rocket.getY() - distanceToMoveBack);
+                        } else {
+                            rocket.setPosition(rocket.getX(), rocket.getY() + distanceToMoveBack);
+                        }
+                    }
+
                 }
             }
+        }
+    }
+
+    public void damaged() {
+        rock.setHealth((rock.getHealth() - 5 * Gdx.graphics.getDeltaTime()));
+        System.out.println(rock.getHealth());
+        if (rock.getHealth() <= 0) {
+            rock.setHealth(0);
+            setGameOver(true);
         }
     }
 
