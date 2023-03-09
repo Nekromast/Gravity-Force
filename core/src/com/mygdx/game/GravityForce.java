@@ -181,6 +181,7 @@ public class GravityForce implements Screen {
         background_music.setLooping(true);
         background_music.setVolume(0.5f);
         background_music.play();
+        tMapRend = new OrthogonalTiledMapRenderer(map, MAPSCALE);
     }
 
     @Override
@@ -189,13 +190,11 @@ public class GravityForce implements Screen {
 
         //Kamera und Map Setup beginnt
 
-        //Map Renderer
-        tMapRend = new OrthogonalTiledMapRenderer(map, MAPSCALE);
-        tMapRend.setView(camera);
 
         //ScreenUtils.clear(Color.GRAY);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         camera.update();
+        tMapRend.setView(camera);
 
         //Kamera folgt der Rakete
         position = camera.position;
@@ -378,8 +377,8 @@ public class GravityForce implements Screen {
     }
 
     public void checkLanding() {
-        for (Iterator<Sprite> iter = collectables.getLandingAreas().iterator(); iter.hasNext(); ) {
-            Rectangle landing_area = iter.next().getBoundingRectangle();
+        for (Sprite sprite : collectables.getLandingAreas()) {
+            Rectangle landing_area = sprite.getBoundingRectangle();
             if (landing_area.overlaps(rocket.getBoundingRectangle())) {
                 hasLandedOnLandingArea = true;
                 landingRotationFinished = false;
@@ -398,7 +397,6 @@ public class GravityForce implements Screen {
                     landingRotationFinished = true;
                 }
                 score++;
-                collectables.getCollectables().removeValue(iter.next(), true);
             }
         }
     }
