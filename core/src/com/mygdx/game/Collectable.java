@@ -1,56 +1,52 @@
-/*package com.mygdx.game;
+package com.mygdx.game;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
+
+import java.util.Iterator;
 
 public class Collectable {
-    Texture collectableImage;
-    public static Sprite collectable;
-    static float COLLECTABLE_SCALE = 0.4f;
-
-
+    Texture goldCoinTexture;
+    Array<Sprite> collectables;
+    int score;
 
     public Collectable(){
         //Collectable und Collectables liste Initialisieren
-        Rectangle collectable = new Rectangle();
-        collectableImage = new Texture("Collectable.png");
-        collectable = new Sprite(collectableImage);
-        collectable.setScale(COLLECTABLE_SCALE);
-        collectable.x = MathUtils.random(0, 800-64);
-        collectable.y = MathUtils.random(0, 800-64);
-        collectable.width = 64;
-        collectable.height = 64;
+        collectables = new Array<>();
+        goldCoinTexture = new Texture("goldCoin.png");
+        score = 0;
+    }
+
+    public void addCollectable(float x, float y, float width, float height) {
+        Sprite collectable = new Sprite(goldCoinTexture);
+        collectable.setX(x);
+        collectable.setY(y);
+        collectable.setSize(width, height);
         collectables.add(collectable);
     }
 
     //Update Funktion prüft die "Spawnzeiten" und ob das Objekt eingesammelt wurde
-    public void update(){
-        lastCollectTime = TimeUtils.nanoTime();
-        if(TimeUtils.nanoTime() - lastCollectTime > 1000000000) spawnCollectable();
+    public void updateCollectable(Rectangle rocket){
 
-        for (Iterator<Rectangle> iter = collectables.iterator(); iter.hasNext(); ) {
-                Rectangle collectable = iter.next();
-                if(collectable.overlaps(rocket)) {
-                  // collectableSound.play();
-                   iter.remove();
-                }
-             }
-          }
+        for (Iterator<Sprite> iter = collectables.iterator(); iter.hasNext(); ) {
+            Rectangle collectable = iter.next().getBoundingRectangle();
+            if(collectable.overlaps(rocket)) {
+                score++;
+                iter.remove();
+            }
+        }
     }
 
-    public Sprite getCollectable(){
-        return collectable;
+    public Array<Sprite> getCollectables(){
+        return collectables;
     }
-
-
+    public int getScore(){
+        return score;
+    }
     public void dispose(){
-        collectableImage.dispose();
-        collectable.dispose();
+        goldCoinTexture.dispose();
     }
 
 }
-
- */

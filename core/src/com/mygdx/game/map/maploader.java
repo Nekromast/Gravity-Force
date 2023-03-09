@@ -26,7 +26,7 @@ public class maploader {
 
         assetManager = new AssetManager();
         assetManager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
-        assetManager.load("testmapb.tmx",TiledMap.class);
+        assetManager.load("testmapc.tmx",TiledMap.class);
 
 
     }
@@ -36,7 +36,7 @@ public class maploader {
     }
 
     public TiledMap getMap () {
-        return assetManager.get("testmapb.tmx");
+        return assetManager.get("testmapc.tmx");
     }
 
     //public float getunitscale() {

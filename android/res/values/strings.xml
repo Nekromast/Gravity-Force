@@ -2,5 +2,6 @@
 <resources>
 
     <string name="app_name">gravity-force</string>
+    <string name="score">Score:</string>
 
 </resources>

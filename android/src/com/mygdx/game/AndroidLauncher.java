@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.android.AndroidApplication;
@@ -73,7 +74,6 @@ public class AndroidLauncher extends AndroidApplication implements GameOverListe
     @Override
     public void onGameOverChanged(boolean isGameOver) {
         if (isGameOver) {
-            System.out.println("Game Over");
             runOnUiThread(() -> {
                 gameOverView.setVisibility(View.VISIBLE);
                 rootView.requestLayout();

@@ -32,8 +32,8 @@ public class Rocket {
         rocketImage = new Texture("Nairan - Battlecruiser - Base.png");
         rocket = new Sprite(rocketImage);
         rocket.setScale(ROCKET_SCALE);
-        rocket.setX(400 -32);
-        rocket.setY(240 -32);
+        rocket.setX(400);
+        rocket.setY(450);
         health = 100;
 
         //Rocket Engine initialisieren
