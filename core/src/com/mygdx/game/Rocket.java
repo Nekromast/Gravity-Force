@@ -54,7 +54,7 @@ public class Rocket {
     }
 
     //Rocket Engine an der Rakete ausrichten
-    public void update(float delta){
+    public void placeEngineAnimation(float delta){
         stateTime += delta;
         rocketEngineSprite.setRegion(rocketAnimation.getKeyFrame(stateTime, true));
         rocketEngineSprite.setPosition(rocket.getX(), rocket.getY());
@@ -74,6 +74,18 @@ public class Rocket {
         return health;
     }
 
+    public void setRotation(float rotation){
+        rocket.setRotation(rotation);
+        rocketEngineSprite.setRotation(rotation);
+    }
+    public void translateX(float x){
+        rocket.translateX(x);
+        rocketEngineSprite.translateX(x);
+    }
+    public void translateY(float y){
+        rocket.translateY(y);
+        rocketEngineSprite.translateY(y);
+    }
 
     public void dispose(){
         rocketImage.dispose();

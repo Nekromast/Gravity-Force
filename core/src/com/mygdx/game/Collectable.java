@@ -2,7 +2,6 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
@@ -46,7 +45,7 @@ public class Collectable {
      */
 
     //Update Funktion prüft die "Spawnzeiten" und ob das Objekt eingesammelt wurde
-    public void updateCollectable(Sprite rocket) {
+    public void checkLanding(Sprite rocket) {
 
 
         for (Iterator<Sprite> iter = landing_areas.iterator(); iter.hasNext(); ) {
@@ -61,7 +60,6 @@ public class Collectable {
                 score++;
                 collectables.removeValue(iter.next(), true);
             }
-
         }
     }
 
