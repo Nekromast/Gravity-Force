@@ -75,6 +75,7 @@ public class GravityForce implements Screen {
     Vector3 touchPos;
 
     //Soundvariablen
+    static Sound coin_sound;
     static Sound thrust_sound;
     static Music background_music;
     long sound_id;
