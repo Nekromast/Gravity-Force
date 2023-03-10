@@ -4,13 +4,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 
 public class Rocket {
-    public float deltaX;
-    public float deltaY;
     Texture rocketImage;
     Texture rocketEngine;
-
+    Rectangle hitbox;
     public static Sprite rocket;
     public static Sprite rocketEngineSprite;
 
@@ -34,7 +33,8 @@ public class Rocket {
         rocket.setScale(ROCKET_SCALE);
         rocket.setX(600);
         rocket.setY(4250);
-        health = 100;
+        //rocket.setCenterX(rocket.getX() + rocket.getWidth());
+        hitbox = rocket.getBoundingRectangle();
         //Rocket Engine initialisieren
         rocketEngine = new Texture("rocket/Nairan - Battlecruiser - Engine.png");
         TextureRegion[][] tmp = TextureRegion.split(rocketEngine, rocketEngine.getWidth() / FRAME_COLS, rocketEngine.getHeight() / FRAME_ROWS);
@@ -64,6 +64,16 @@ public class Rocket {
     }
     public Sprite getRocketEngine(){
         return rocketEngineSprite;
+    }
+    public Rectangle getHitbox(){
+        hitbox.set(rocket.getBoundingRectangle());
+        hitbox.setWidth(hitbox.getWidth() * 0.5f);
+        hitbox.setHeight(hitbox.getHeight() * 0.8f);
+        return hitbox;
+    }
+    public void setHitbox(float x, float y){
+        hitbox = rocket.getBoundingRectangle();
+        hitbox.setPosition(x, y);
     }
 
     public void setHealth(double newHealth){

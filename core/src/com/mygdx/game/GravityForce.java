@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
@@ -20,9 +21,8 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.Array;
 import com.mygdx.game.map.maploader;
-
-import java.util.Iterator;
 
 
 public class GravityForce implements Screen {
@@ -32,7 +32,7 @@ public class GravityForce implements Screen {
     static final int DISPLAY_HEIGHT = 480;
 
     Rocket rock;
-    Collectable collectables;
+    Array<Collectable> collectables;
     BaseStation baseStation;
 
     static Sprite rocket;
@@ -49,7 +49,6 @@ public class GravityForce implements Screen {
     Texture rightArrow;
     Texture boostTexture;
     Texture background;
-    Texture goldCoinTexture;
 
 
     //Die Rectangles für die Control Buttons
@@ -77,12 +76,12 @@ public class GravityForce implements Screen {
 
     //Soundvariablen
     static Sound coin_sound;
-    static Sound thrust_sound;
+    static Music thrust_sound;
     static Music background_music;
+    static Music gameOverSound;
     long sound_id;
-    float volume;
+    float THRUSTSOUND_VOLUME = 0.5f;
     boolean wasPlayed;
-    float soundbuffer;
 
     //Map
     maploader gmap;
@@ -98,11 +97,10 @@ public class GravityForce implements Screen {
     float rocketOldY;
     Rectangle rocketNewRect;
 
-    //Health
-    Label healthLabel;
-
     //Score
+    int coinCount;
     int score;
+    Label coinCountLabel;
     Label scoreLabel;
 
     // Game Over
@@ -122,13 +120,15 @@ public class GravityForce implements Screen {
         rocket = rock.getRocket();
         rocketEngineSprite = rock.getRocketEngine();
 
+        //Collectables erstellen
+        collectables = new Array<>();
+
 
         //Texturvariablen
         leftArrow = new Texture("ui/leftArrow.png");
         rightArrow = new Texture("ui/rightArrow.png");
         boostTexture = new Texture("ui/boostTexture.png");
         background = new Texture("map/background.png");
-        goldCoinTexture = new Texture("map/goldCoin.png");
 
         //Camera für die Ansicht
         camera = new OrthographicCamera();
@@ -145,19 +145,17 @@ public class GravityForce implements Screen {
         boostButton = new Rectangle(DISPLAY_WIDTH - 100, 0, 100, 100);
         touchPos = new Vector3();
 
-        //Health
-        healthLabel = new Label("Health: " + rock.getHealth(), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        healthLabel.setBounds(DISPLAY_WIDTH / 2 - 100, 0, 100, 50);
 
         //Score
+        coinCountLabel = new Label("Coins to submit: " + coinCount, new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        coinCountLabel.setBounds(DISPLAY_WIDTH / 2 - 100, 0, 100, 50);
         scoreLabel = new Label("Score: " + score, new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         scoreLabel.setBounds(DISPLAY_WIDTH / 2 + 100, 0, 100, 50);
 
         //Soundeffekte
-        thrust_sound = Gdx.audio.newSound(Gdx.files.internal("sounds/thrust.mp3"));
-        volume = 0.5f;
+        thrust_sound = Gdx.audio.newMusic(Gdx.files.internal("sounds/thrust.mp3"));
+        gameOverSound = Gdx.audio.newMusic(Gdx.files.internal("sounds/gameOver.mp3"));
         wasPlayed = false;
-        soundbuffer = 0;
 
         //Background Music
         background_music = Gdx.audio.newMusic(Gdx.files.internal("sounds/background_music.mp3"));
@@ -170,14 +168,16 @@ public class GravityForce implements Screen {
         map = loader.load("map/testmapc.tmx");
 
         //Collectables
-        collectables = new Collectable();
+        collectables= new Array<>();
         for (MapObject object : map.getLayers().get("objects").getObjects()) {
             float x = object.getProperties().get("x", Float.class) * MAPSCALE;
             float y = object.getProperties().get("y", Float.class) * MAPSCALE;
             float width = object.getProperties().get("width", Float.class) * MAPSCALE;
             float height = object.getProperties().get("height", Float.class) * MAPSCALE;
-            collectables.addCollectable(x, y, width, height);
+            collectables.add(new Collectable(x, y, width, height));
         }
+
+
         //BaseStation
         MapObject baseStationObject = map.getLayers().get("station").getObjects().get(0);
         baseStation = new BaseStation(
@@ -190,8 +190,9 @@ public class GravityForce implements Screen {
     @Override
     public void show() {
         background_music.setLooping(true);
-        background_music.setVolume(0.5f);
+        background_music.setVolume(0.1f);
         background_music.play();
+
         tMapRend = new OrthogonalTiledMapRenderer(map, MAPSCALE);
     }
 
@@ -244,13 +245,14 @@ public class GravityForce implements Screen {
         batch.draw(background, -100, -100, 3840, 2160);
         rocket.draw(batch);
         if (isMoving && landingRotationFinished) rocketEngineSprite.draw(batch);
+        for (Collectable collectable : collectables) {
+            Sprite landingAreaSprite = collectable.getLandingArea();
+            landingAreaSprite.draw(batch);
+            if(collectable.wasLanded()) landingAreaSprite.setColor(Color.GREEN);
+            else collectable.getGoldCoin().draw(batch);
+        }
 
-        for (Sprite landing_area : collectables.getLandingAreas()) {
-            landing_area.draw(batch);
-        }
-        for (Sprite goldCoin : collectables.getCollectables()) {
-            goldCoin.draw(batch);
-        }
+
         baseStation.getHouseSprite().draw(batch);
         baseStation.getBaseStation().draw(batch);
         tMapRend.render();
@@ -262,11 +264,19 @@ public class GravityForce implements Screen {
         uiBatch.draw(leftArrow, leftButton.x, leftButton.y, leftButton.width, leftButton.height);
         uiBatch.draw(rightArrow, rightButton.x, rightButton.y, rightButton.width, rightButton.height);
         uiBatch.draw(boostTexture, boostButton.x, boostButton.y, boostButton.width, boostButton.height);
-        healthLabel.setText("Health: " + (int) rock.getHealth());
-        healthLabel.draw(uiBatch, 1);
+        coinCountLabel.setText("Coins to submit: " + coinCount);
+        coinCountLabel.draw(uiBatch, 1);
         scoreLabel.setText("Score: " + score);
         scoreLabel.draw(uiBatch, 1);
         uiBatch.end();
+
+         ShapeRenderer shapeRenderer = new ShapeRenderer();
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.RED);
+        shapeRenderer.rect(rock.getHitbox().x, rock.getHitbox().y, rock.getHitbox().width, rock.getHitbox().height);
+        shapeRenderer.end();
+
 
         //Kollision und Bewegung, die ggf in deren Funktionen auf true gestellt werden
         hasLandedOnLandingArea = false;
@@ -282,12 +292,12 @@ public class GravityForce implements Screen {
             uicamera.unproject(touchPos.set(Gdx.input.getX(i), Gdx.input.getY(i), 0));
             // Überprüfungen ob man auf die Buttons geklickt hat
             if (leftButton.contains(touchPos.x, touchPos.y)) {
-                rocket.setRotation(rocket.getRotation() + THRUST * Gdx.graphics.getDeltaTime());
-                rocketEngineSprite.setRotation(rocket.getRotation() + THRUST * Gdx.graphics.getDeltaTime());
+                rock.setRotation(rocket.getRotation() + THRUST * Gdx.graphics.getDeltaTime());
+                rock.setHitbox(rocket.getX(), rocket.getY());
             }
             if (rightButton.contains(touchPos.x, touchPos.y)) {
-                rocket.setRotation(rocket.getRotation() - THRUST * Gdx.graphics.getDeltaTime());
-                rocketEngineSprite.setRotation(rocket.getRotation() - THRUST * Gdx.graphics.getDeltaTime());
+                rock.setRotation(rocket.getRotation() - THRUST * Gdx.graphics.getDeltaTime());
+                rock.setHitbox(rocket.getX(), rocket.getY());
             }
             if (boostButton.contains(touchPos.x, touchPos.y)) {
                 isMoving = true;
@@ -346,25 +356,24 @@ public class GravityForce implements Screen {
     }
 
     public void playThrustSound() {
-        //Buffer weil der Sound noch geladen werden muss
-        soundbuffer += Gdx.graphics.getDeltaTime();
 
         // Abspielen des Tons bei der ersten Bewegung & nach Bufferzeit
-        if (!wasPlayed && soundbuffer > 3) {
-            sound_id = thrust_sound.play(volume);
-            thrust_sound.setLooping(sound_id, true);
+        if (!wasPlayed) {
+            //sound_id = thrust_sound.play();
+            thrust_sound.play();
+            thrust_sound.setLooping(true);
             wasPlayed = true;
 
         }
 
         //Bei Bewegung wird der Sound lauter
-        if (isMoving && volume + 0.75f * Gdx.graphics.getDeltaTime() < 1) {
-            thrust_sound.setVolume(sound_id, volume += 0.75f * Gdx.graphics.getDeltaTime());
+        if (isMoving && THRUSTSOUND_VOLUME + 1 * Gdx.graphics.getDeltaTime() < THRUSTSOUND_VOLUME) {
+            thrust_sound.setVolume( THRUSTSOUND_VOLUME += 1 * Gdx.graphics.getDeltaTime());
         }
 
         //Bei Stillstand wird der Sound schnell leiser
-        if (volume - 2 * Gdx.graphics.getDeltaTime() > 0 && !isMoving)
-            thrust_sound.setVolume(sound_id, volume -= 2 * Gdx.graphics.getDeltaTime());
+        if (THRUSTSOUND_VOLUME - 2 * Gdx.graphics.getDeltaTime() > 0 && !isMoving)
+            thrust_sound.setVolume( THRUSTSOUND_VOLUME -= 2 * Gdx.graphics.getDeltaTime());
     }
 
     public void mapcollision() {
@@ -382,9 +391,11 @@ public class GravityForce implements Screen {
                         tile.getTextureRegion().getRegionHeight() * MAPSCALE);
 
                 //Kollision mit Tilenur überprüfen, wenn es nicht auf einer Landefläche hält
-                if (rocketrect.overlaps(tileBounds) && !hasLandedOnLandingArea) {
+                if (rock.getHitbox().overlaps(tileBounds) && !hasLandedOnLandingArea) {
                     //hier was bei Kollision passieren soll
-                    damage();
+                    //damage();
+                    gameOverSound.play();
+                    setGameOver(true);
                     return;
                 }
             }
@@ -392,9 +403,9 @@ public class GravityForce implements Screen {
     }
 
     public void checkLanding() {
-        for (Sprite sprite : collectables.getLandingAreas()) {
-            Rectangle landing_area = sprite.getBoundingRectangle();
-            if (landing_area.overlaps(rocket.getBoundingRectangle())) {
+        for (Collectable collectable : collectables) {
+            Rectangle landing_area = collectable.getLandingArea().getBoundingRectangle();
+            if (landing_area.overlaps(rock.getHitbox())) {
                 hasLandedOnLandingArea = true;
                 landingRotationFinished = false;
                 //Rotation zwischen 0 und 360 Grad halten
@@ -411,7 +422,12 @@ public class GravityForce implements Screen {
                 if (rocket.getRotation() < 1 && rocket.getRotation() > -1) {
                     landingRotationFinished = true;
                 }
-                score++;
+                //Coin aufheben und Sound abspielen
+                if(!collectable.wasLanded()){
+                    collectable.setWasLanded(true);
+                    coinCount +=1;
+                    collectable.play();
+                }
             }
         }
     }
@@ -419,7 +435,7 @@ public class GravityForce implements Screen {
     public void checkBaseLanding() {
         Sprite base = baseStation.getBaseStation();
         Rectangle landing_area = base.getBoundingRectangle();
-        if (landing_area.overlaps(rocket.getBoundingRectangle())) {
+        if (landing_area.overlaps(rock.getHitbox())) {
             hasLandedOnLandingArea = true;
             landingRotationFinished = false;
             //Rotation zwischen 0 und 360 Grad halten
@@ -436,7 +452,8 @@ public class GravityForce implements Screen {
             if (rocket.getRotation() < 1 && rocket.getRotation() > -1) {
                 landingRotationFinished = true;
             }
-            score=(int)rock.getHealth();
+            score = score + coinCount;
+            coinCount = 0;
         }
     }
 
@@ -455,6 +472,7 @@ public class GravityForce implements Screen {
 
     public void setGameOver(boolean gameOver) {
         isGameOver = gameOver;
+        pause();
         if (gameOverListener != null) {
             gameOverListener.onGameOverChanged(gameOver);
         }
@@ -475,27 +493,23 @@ public class GravityForce implements Screen {
         gmap.dispose();
         tMapRend.dispose();
         rock.dispose();
-        collectables.dispose();
-
     }
 
     @Override
     public void resize(int width, int height) {
-
     }
 
     @Override
     public void pause() {
-
+        background_music.pause();
+        thrust_sound.pause();
     }
 
     @Override
     public void resume() {
-
     }
 
     @Override
     public void hide() {
-
     }
 }

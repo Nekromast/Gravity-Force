@@ -5,32 +5,31 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 
 public class landingAreasContainer {
 
+    Texture goldCoinTexture;
+
     public Sprite landingArea;
+    public Sprite goldCoin;
     public boolean wasLanded;
 
 
-    public landingAreasContainer() {
-        landingArea = new Sprite();
-        wasLanded = false;
-    }
-    public landingAreasContainer(Sprite landingArea){
+    public landingAreasContainer(Sprite landingArea, Sprite goldCoin){
         this.landingArea = landingArea;
+        this.goldCoin = goldCoin;
         wasLanded = false;
-    }
-
-    public void setLandingArea(Sprite landingArea){
-        this.landingArea = landingArea;
     }
 
     public Sprite getLandingArea(){
         return landingArea;
+    }
+    public Sprite getGoldCoin(){
+        return goldCoin;
     }
 
     public void setWasLanded(boolean wasLanded){
         this.wasLanded = wasLanded;
     }
 
-    public boolean getWasLanded(){
+    public boolean wasLanded(){
         return wasLanded;
     }
 
