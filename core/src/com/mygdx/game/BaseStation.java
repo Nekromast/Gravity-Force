@@ -43,4 +43,9 @@ public class BaseStation {
     public Sprite getHouseSprite() {
         return houseSprite;
     }
+
+    public void dispose(){
+        landingArea.dispose();
+        house.dispose();
+    }
 }

@@ -465,12 +465,16 @@ public class GravityForce implements Screen {
         leftArrow.dispose();
         rightArrow.dispose();
         boostTexture.dispose();
-        //background.dispose();
+        background.dispose();
         background_music.dispose();
         thrust_sound.dispose();
         gmap.dispose();
         tMapRend.dispose();
         rock.dispose();
+        for (Collectable collectable : collectables) {
+            collectable.dispose();
+        }
+        baseStation.dispose();
     }
 
     @Override
