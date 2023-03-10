@@ -4,13 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.utils.Array;
-import com.mygdx.game.landingAreasContainer;
-
-import java.util.Iterator;
 
 public class Collectable {
     Texture landingAreaTexture;
@@ -71,6 +64,7 @@ public class Collectable {
     public Sprite getLandingArea() {
         return landingArea;
     }
+
     public Sprite getGoldCoin() {
         return goldCoin;
     }
@@ -79,11 +73,11 @@ public class Collectable {
         landingAreaTexture.dispose();
     }
 
-    public void setWasLanded(boolean wasLanded){
+    public void setWasLanded(boolean wasLanded) {
         this.wasLanded = wasLanded;
     }
 
-    public boolean wasLanded(){
+    public boolean wasLanded() {
         return wasLanded;
     }
 
