@@ -27,8 +27,8 @@ public class Collectable {
         //Collectable und Collectables liste Initialisieren
         collectables = new Array<>();
         landing_areas = new Array<>();
-        landingAreaTexture = new Texture("landing_area.png");
-        goldCoinTexture = new Texture("goldCoin.png");
+        landingAreaTexture = new Texture("map/landing_area.png");
+        goldCoinTexture = new Texture("map/goldCoin.png");
         score = 0;
         coin_sound = Gdx.audio.newSound(Gdx.files.internal("coin.mp3"));
         volume = 0.5f;
@@ -64,12 +64,6 @@ public class Collectable {
         }
 
     }
-    /*
-    public void test(){
-
-    }
-
-     */
 
     //Update Funktion prüft die "Spawnzeiten" und ob das Objekt eingesammelt wurde
     public void checkLanding(Sprite rocket) {
