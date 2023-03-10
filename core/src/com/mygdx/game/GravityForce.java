@@ -123,11 +123,11 @@ public class GravityForce implements Screen {
         collectables = new Collectable();
 
         //Texturvariablen
-        leftArrow = new Texture("leftArrow.png");
-        rightArrow = new Texture("rightArrow.png");
-        boostTexture = new Texture("boostTexture.png");
-        background = new Texture("background.png");
-        goldCoinTexture = new Texture("goldCoin.png");
+        leftArrow = new Texture("ui/leftArrow.png");
+        rightArrow = new Texture("ui/rightArrow.png");
+        boostTexture = new Texture("ui/boostTexture.png");
+        background = new Texture("map/background.png");
+        goldCoinTexture = new Texture("map/goldCoin.png");
 
         //Camera für die Ansicht
         camera = new OrthographicCamera();
@@ -152,20 +152,20 @@ public class GravityForce implements Screen {
         scoreLabel.setBounds(DISPLAY_WIDTH / 2 + 100, 0, 100, 50);
 
         //Soundeffekte
-        thrust_sound = Gdx.audio.newSound(Gdx.files.internal("thrust.mp3"));
+        thrust_sound = Gdx.audio.newSound(Gdx.files.internal("sounds/thrust.mp3"));
         volume = 0.5f;
         wasPlayed = false;
         soundbuffer = 0;
 
         //Background Music
-        background_music = Gdx.audio.newMusic(Gdx.files.internal("background_music.mp3"));
+        background_music = Gdx.audio.newMusic(Gdx.files.internal("sounds/background_music.mp3"));
 
         //Karte (reduntant)
         gmap = new maploader();
 
         //Karte 2
         TmxMapLoader loader = new TmxMapLoader();
-        map = loader.load("testmapc.tmx");
+        map = loader.load("map/testmapc.tmx");
 
         for (MapObject object : map.getLayers().get("objects").getObjects()) {
             float x = object.getProperties().get("x", Float.class) * MAPSCALE;

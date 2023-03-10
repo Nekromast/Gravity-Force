@@ -18,8 +18,8 @@ public class Collectable {
         //Collectable und Collectables liste Initialisieren
         collectables = new Array<>();
         landing_areas = new Array<>();
-        landingAreaTexture = new Texture("landing_area.png");
-        goldCoinTexture = new Texture("goldCoin.png");
+        landingAreaTexture = new Texture("map/landing_area.png");
+        goldCoinTexture = new Texture("map/goldCoin.png");
         score = 0;
     }
 

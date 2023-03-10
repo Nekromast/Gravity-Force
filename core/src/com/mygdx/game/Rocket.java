@@ -29,7 +29,7 @@ public class Rocket {
 
     public Rocket(){
         //Rocket initialisieren
-        rocketImage = new Texture("Nairan - Battlecruiser - Base.png");
+        rocketImage = new Texture("rocket/Nairan - Battlecruiser - Base.png");
         rocket = new Sprite(rocketImage);
         rocket.setScale(ROCKET_SCALE);
         rocket.setX(400);
@@ -37,7 +37,7 @@ public class Rocket {
         health = 100;
 
         //Rocket Engine initialisieren
-        rocketEngine = new Texture("Nairan - Battlecruiser - Engine.png");
+        rocketEngine = new Texture("rocket/Nairan - Battlecruiser - Engine.png");
         TextureRegion[][] tmp = TextureRegion.split(rocketEngine, rocketEngine.getWidth() / FRAME_COLS, rocketEngine.getHeight() / FRAME_ROWS);
         TextureRegion[] rocketFrames = new TextureRegion[FRAME_COLS * FRAME_ROWS];
         int index = 0;
