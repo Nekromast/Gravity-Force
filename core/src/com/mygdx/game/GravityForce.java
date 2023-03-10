@@ -250,8 +250,8 @@ public class GravityForce implements Screen {
         for (Sprite goldCoin : collectables.getCollectables()) {
             goldCoin.draw(batch);
         }
+        baseStation.getHouseSprite().draw(batch);
         baseStation.getBaseStation().draw(batch);
-
         tMapRend.render();
         batch.end();
 
