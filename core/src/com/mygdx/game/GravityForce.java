@@ -3,7 +3,6 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -61,10 +60,6 @@ public class GravityForce implements Screen {
     Integer MAX_VELOCITY = 200;
     Integer GRAVITY = -50;
     Integer THRUST = 125;
-
-    double rocketVelocityX = 0;
-    double rocketVelocityY = 0;
-
     static boolean isMoving = false;
 
     //Kamera Variablen fürs Folgen der Rakete
@@ -75,12 +70,10 @@ public class GravityForce implements Screen {
     Vector3 touchPos;
 
     //Soundvariablen
-    static Sound coin_sound;
     static Music thrust_sound;
     static Music background_music;
     static Music gameOverSound;
-    long sound_id;
-    float THRUSTSOUND_VOLUME = 0.5f;
+    float THRUSTSOUND_MAXVOLUME = 0.3f;
     boolean wasPlayed;
 
     //Map
@@ -89,13 +82,9 @@ public class GravityForce implements Screen {
     int MAPSCALE = 4;
     OrthogonalTiledMapRenderer tMapRend;
 
+    //Landing
     boolean hasLandedOnLandingArea;
     boolean landingRotationFinished;
-
-    //Collision
-    float rocketOldX;
-    float rocketOldY;
-    Rectangle rocketNewRect;
 
     //Score
     int coinCount;
@@ -107,22 +96,22 @@ public class GravityForce implements Screen {
     boolean isGameOver;
     public GameOverListener gameOverListener;
 
+    //Debug
+    boolean debug = false;
+
 
     public GravityForce(final Game game) {
+        //Batches erstellen
         batch = new SpriteBatch();
         uiBatch = new SpriteBatch();
 
-        isGameOver = false;
-        landingRotationFinished = true;
-
         //Rakete erstellen
         rock = new Rocket();
-        rocket = rock.getRocket();
+        rocket = rock.getSprite();
         rocketEngineSprite = rock.getRocketEngine();
 
         //Collectables erstellen
         collectables = new Array<>();
-
 
         //Texturvariablen
         leftArrow = new Texture("ui/leftArrow.png");
@@ -145,7 +134,6 @@ public class GravityForce implements Screen {
         boostButton = new Rectangle(DISPLAY_WIDTH - 100, 0, 100, 100);
         touchPos = new Vector3();
 
-
         //Score
         coinCountLabel = new Label("Coins to submit: " + coinCount, new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         coinCountLabel.setBounds(DISPLAY_WIDTH / 2 - 100, 0, 100, 50);
@@ -160,7 +148,7 @@ public class GravityForce implements Screen {
         //Background Music
         background_music = Gdx.audio.newMusic(Gdx.files.internal("sounds/background_music.mp3"));
 
-        //Karte (reduntant)
+        //Karte (redundant)
         gmap = new maploader();
 
         //Karte 2
@@ -185,6 +173,10 @@ public class GravityForce implements Screen {
                 baseStationObject.getProperties().get("y", Float.class) * MAPSCALE,
                 baseStationObject.getProperties().get("width", Float.class) * MAPSCALE,
                 baseStationObject.getProperties().get("height", Float.class) * MAPSCALE);
+
+        //Variablen laden
+        isGameOver = false;
+        landingRotationFinished = true;
     }
 
     @Override
@@ -270,13 +262,10 @@ public class GravityForce implements Screen {
         scoreLabel.draw(uiBatch, 1);
         uiBatch.end();
 
-         ShapeRenderer shapeRenderer = new ShapeRenderer();
-        shapeRenderer.setProjectionMatrix(camera.combined);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(rock.getHitbox().x, rock.getHitbox().y, rock.getHitbox().width, rock.getHitbox().height);
-        shapeRenderer.end();
-
+        //Debugging
+        if(debug) {
+            debug();
+        }
 
         //Kollision und Bewegung, die ggf in deren Funktionen auf true gestellt werden
         hasLandedOnLandingArea = false;
@@ -293,11 +282,9 @@ public class GravityForce implements Screen {
             // Überprüfungen ob man auf die Buttons geklickt hat
             if (leftButton.contains(touchPos.x, touchPos.y)) {
                 rock.setRotation(rocket.getRotation() + THRUST * Gdx.graphics.getDeltaTime());
-                rock.setHitbox(rocket.getX(), rocket.getY());
             }
             if (rightButton.contains(touchPos.x, touchPos.y)) {
                 rock.setRotation(rocket.getRotation() - THRUST * Gdx.graphics.getDeltaTime());
-                rock.setHitbox(rocket.getX(), rocket.getY());
             }
             if (boostButton.contains(touchPos.x, touchPos.y)) {
                 isMoving = true;
@@ -359,21 +346,20 @@ public class GravityForce implements Screen {
 
         // Abspielen des Tons bei der ersten Bewegung & nach Bufferzeit
         if (!wasPlayed) {
-            //sound_id = thrust_sound.play();
             thrust_sound.play();
             thrust_sound.setLooping(true);
             wasPlayed = true;
-
         }
-
         //Bei Bewegung wird der Sound lauter
-        if (isMoving && THRUSTSOUND_VOLUME + 1 * Gdx.graphics.getDeltaTime() < THRUSTSOUND_VOLUME) {
-            thrust_sound.setVolume( THRUSTSOUND_VOLUME += 1 * Gdx.graphics.getDeltaTime());
+        if (isMoving && (thrust_sound.getVolume() < THRUSTSOUND_MAXVOLUME)) {
+            thrust_sound.setVolume(thrust_sound.getVolume() + 1 * Gdx.graphics.getDeltaTime());
         }
 
         //Bei Stillstand wird der Sound schnell leiser
-        if (THRUSTSOUND_VOLUME - 2 * Gdx.graphics.getDeltaTime() > 0 && !isMoving)
-            thrust_sound.setVolume( THRUSTSOUND_VOLUME -= 2 * Gdx.graphics.getDeltaTime());
+        if (thrust_sound.getVolume() > 0 && !isMoving)
+            thrust_sound.setVolume(thrust_sound.getVolume() - 2 * Gdx.graphics.getDeltaTime());
+
+        if(thrust_sound.getVolume() < 0) thrust_sound.setVolume(0);
     }
 
     public void mapcollision() {
@@ -457,15 +443,6 @@ public class GravityForce implements Screen {
         }
     }
 
-    public void damage() {
-        rock.setHealth((rock.getHealth() - 30 * Gdx.graphics.getDeltaTime()));
-        System.out.println(rock.getHealth());
-        if (rock.getHealth() <= 0) {
-            rock.setHealth(0);
-            setGameOver(true);
-        }
-    }
-
     public void setListener(GameOverListener listener) {
         this.gameOverListener = listener;
     }
@@ -476,6 +453,16 @@ public class GravityForce implements Screen {
         if (gameOverListener != null) {
             gameOverListener.onGameOverChanged(gameOver);
         }
+    }
+
+    public void debug(){
+        //HitBox Shape
+        ShapeRenderer shapeRenderer1 = new ShapeRenderer();
+        shapeRenderer1.setProjectionMatrix(camera.combined);
+        shapeRenderer1.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer1.setColor(Color.GREEN);
+        shapeRenderer1.rect(rock.getHitbox().getX(), rock.getHitbox().getY(), rock.getHitbox().getWidth(), rock.getHitbox().getHeight());
+        shapeRenderer1.end();
     }
 
     @Override

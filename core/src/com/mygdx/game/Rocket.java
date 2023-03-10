@@ -9,7 +9,6 @@ import com.badlogic.gdx.math.Rectangle;
 public class Rocket {
     Texture rocketImage;
     Texture rocketEngine;
-    Rectangle hitbox;
     public static Sprite rocket;
     public static Sprite rocketEngineSprite;
 
@@ -23,18 +22,23 @@ public class Rocket {
     float stateTime;
 
     //Health
-    public static double health ;
+    public static double health;
+
+    //Hitbox
+    Rectangle hitbox;
+    int HITBOX_WIDTH = 40;
+    int HITBOX_HEIGHT = 40;
+    int HITBOX_OFFSET = 45;
 
 
-    public Rocket(){
+    public Rocket() {
         //Rocket initialisieren
         rocketImage = new Texture("rocket/Nairan - Battlecruiser - Base.png");
         rocket = new Sprite(rocketImage);
         rocket.setScale(ROCKET_SCALE);
         rocket.setX(600);
         rocket.setY(4250);
-        //rocket.setCenterX(rocket.getX() + rocket.getWidth());
-        hitbox = rocket.getBoundingRectangle();
+        rocket.setOrigin(rocket.getWidth() / 2, rocket.getHeight() / 2);
         //Rocket Engine initialisieren
         rocketEngine = new Texture("rocket/Nairan - Battlecruiser - Engine.png");
         TextureRegion[][] tmp = TextureRegion.split(rocketEngine, rocketEngine.getWidth() / FRAME_COLS, rocketEngine.getHeight() / FRAME_ROWS);
@@ -50,53 +54,57 @@ public class Rocket {
         rocketEngineSprite = new Sprite(rocketFrames[0]);
         rocketEngineSprite.setScale(ENGINE_SCALE);
         stateTime = 0f;
+
+        //Hitbox
+        hitbox = new Rectangle();
     }
 
     //Rocket Engine an der Rakete ausrichten
-    public void placeEngineAnimation(float delta){
+    public void placeEngineAnimation(float delta) {
         stateTime += delta;
         rocketEngineSprite.setRegion(rocketAnimation.getKeyFrame(stateTime, true));
         rocketEngineSprite.setPosition(rocket.getX(), rocket.getY());
     }
 
-    public Sprite getRocket(){
+    public Sprite getSprite() {
         return rocket;
     }
-    public Sprite getRocketEngine(){
+
+    public Sprite getRocketEngine() {
         return rocketEngineSprite;
     }
-    public Rectangle getHitbox(){
-        hitbox.set(rocket.getBoundingRectangle());
-        hitbox.setWidth(hitbox.getWidth() * 0.5f);
-        hitbox.setHeight(hitbox.getHeight() * 0.8f);
+
+    public Rectangle getHitbox() {
+        hitbox.setPosition(rocket.getX() + HITBOX_OFFSET, rocket.getY() + HITBOX_OFFSET);
+        hitbox.setWidth(HITBOX_WIDTH);
+        hitbox.setHeight(HITBOX_HEIGHT);
         return hitbox;
     }
-    public void setHitbox(float x, float y){
-        hitbox = rocket.getBoundingRectangle();
-        hitbox.setPosition(x, y);
-    }
 
-    public void setHealth(double newHealth){
+    public void setHealth(double newHealth) {
         health = newHealth;
     }
-    public double getHealth(){
+
+    public double getHealth() {
         return health;
     }
 
-    public void setRotation(float rotation){
+    public void setRotation(float rotation) {
         rocket.setRotation(rotation);
         rocketEngineSprite.setRotation(rotation);
     }
-    public void translateX(float x){
+
+    public void translateX(float x) {
         rocket.translateX(x);
         rocketEngineSprite.translateX(x);
     }
-    public void translateY(float y){
+
+    public void translateY(float y) {
         rocket.translateY(y);
         rocketEngineSprite.translateY(y);
     }
 
-    public void dispose(){
+    public void dispose() {
         rocketImage.dispose();
         rocketEngine.dispose();
     }
