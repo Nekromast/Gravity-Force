@@ -17,7 +17,6 @@ import android.widget.TextView;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.mygdx.game.GravityForce;
 
 public class AndroidLauncher extends AndroidApplication implements GameOverListener {
     View gameView;
