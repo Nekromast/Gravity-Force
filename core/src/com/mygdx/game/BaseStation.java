@@ -28,9 +28,7 @@ public class BaseStation {
 
     }
 
-    public void dispose() {
-        landingArea.dispose();
-    }
+
     /**
      * @return gibt die Basisstation zurück
      */

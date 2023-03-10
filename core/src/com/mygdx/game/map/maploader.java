@@ -9,8 +9,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 public class maploader {
 
     private final AssetManager assetManager;
-    private TiledMap map;
-    private OrthogonalTiledMapRenderer renderer;
+
 
     /**
      * Constructor
@@ -40,9 +39,7 @@ public class maploader {
     }
 
 
-    /**
-     * entlädt alle Ressourcen des assetManager
-     */
+
     /**
      * entfernt den  assetManager aus dem Speicher
      */
