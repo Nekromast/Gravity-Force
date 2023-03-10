@@ -21,6 +21,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.map.maploader;
 
 
@@ -195,7 +196,7 @@ public class GravityForce implements Screen {
         //Kamera und Map Setup beginnt
 
 
-        //ScreenUtils.clear(Color.GRAY);
+        ScreenUtils.clear(Color.DARK_GRAY);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         camera.update();
         tMapRend.setView(camera);
@@ -234,7 +235,12 @@ public class GravityForce implements Screen {
         //Rakete, Collectables und Background werden projiziert
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(background, -100, -100, 3840, 2160);
+        //Draw background over the map
+        for(int i = 0; i < 10; i++){
+            for (int j = 0; j < 10; j++){
+                batch.draw(background, i * 800, j * 600);
+            }
+        }
         rocket.draw(batch);
         if (isMoving && landingRotationFinished) rocketEngineSprite.draw(batch);
         for (Collectable collectable : collectables) {
@@ -243,7 +249,6 @@ public class GravityForce implements Screen {
             if(collectable.wasLanded()) landingAreaSprite.setColor(Color.GREEN);
             else collectable.getGoldCoin().draw(batch);
         }
-
 
         baseStation.getHouseSprite().draw(batch);
         baseStation.getBaseStation().draw(batch);
@@ -474,7 +479,7 @@ public class GravityForce implements Screen {
         leftArrow.dispose();
         rightArrow.dispose();
         boostTexture.dispose();
-        background.dispose();
+        //background.dispose();
         background_music.dispose();
         thrust_sound.dispose();
         gmap.dispose();
