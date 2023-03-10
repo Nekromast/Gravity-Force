@@ -12,7 +12,9 @@ public class maploader {
     private TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
 
-
+    /**
+     * Konstruktor
+     */
     public maploader() {
 
         assetManager = new AssetManager();
@@ -21,19 +23,23 @@ public class maploader {
 
 
     }
-
+    /**
+     * @return gibt den AssetManager zurück
+     */
     public AssetManager getAssetManager() {
         return assetManager;
     }
-
+    /**
+     * @return gibt die Map zurück
+     */
     public TiledMap getMap() {
         return assetManager.get("testmapc.tmx");
     }
 
-    //public float getunitscale() {
-    //    return unitscale;
-    //}
 
+    /**
+     * entlädt alle Ressourcen
+     */
     public void dispose() {
         assetManager.dispose();
     }

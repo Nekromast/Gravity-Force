@@ -30,73 +30,59 @@ public class GravityForce implements Screen {
     //Displayvariablen
     static final int DISPLAY_WIDTH = 800;
     static final int DISPLAY_HEIGHT = 480;
-
+    static Sprite rocket;
+    static boolean isMoving = false;
+    //Soundvariablen
+    static Music thrust_sound;
+    static Music background_music;
+    static Music gameOverSound;
+    public GameOverListener gameOverListener;
     Rocket rock;
     Array<Collectable> collectables;
     BaseStation baseStation;
-
-    static Sprite rocket;
     Rectangle rocketrect;
     Sprite rocketEngineSprite;
     SpriteBatch batch;
     SpriteBatch uiBatch;
     OrthographicCamera camera;
     OrthographicCamera uicamera;
-
     Texture rocketImage;
     Texture rocketEngine;
     Texture leftArrow;
     Texture rightArrow;
     Texture boostTexture;
     Texture background;
-
-
     //Die Rectangles für die Control Buttons
     Rectangle leftButton;
     Rectangle rightButton;
     Rectangle boostButton;
-
     //Variablen für die Bewegung der Rakete
     Integer CURRENT_VELOCITY = 0;
     Integer MAX_VELOCITY = 200;
     Integer GRAVITY = -50;
     Integer THRUST = 125;
-    static boolean isMoving = false;
-
     //Kamera Variablen fürs Folgen der Rakete
     float lerp = 0.05f;
     Vector3 position;
-
     //Touchposition
     Vector3 touchPos;
-
-    //Soundvariablen
-    static Music thrust_sound;
-    static Music background_music;
-    static Music gameOverSound;
     float THRUSTSOUND_MAXVOLUME = 0.3f;
     boolean wasPlayed;
-
     //Map
     maploader gmap;
     TiledMap map;
     int MAPSCALE = 4;
     OrthogonalTiledMapRenderer tMapRend;
-
     //Landing
     boolean hasLandedOnLandingArea;
     boolean landingRotationFinished;
-
     //Score
     int coinCount;
     int score;
     Label coinCountLabel;
     Label scoreLabel;
-
     // Game Over
     boolean isGameOver;
-    public GameOverListener gameOverListener;
-
     //Debug
     boolean debug = false;
 
@@ -157,7 +143,7 @@ public class GravityForce implements Screen {
         map = loader.load("map/testmapc.tmx");
 
         //Collectables
-        collectables= new Array<>();
+        collectables = new Array<>();
         for (MapObject object : map.getLayers().get("objects").getObjects()) {
             float x = object.getProperties().get("x", Float.class) * MAPSCALE;
             float y = object.getProperties().get("y", Float.class) * MAPSCALE;
@@ -236,8 +222,8 @@ public class GravityForce implements Screen {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         //Draw background over the map
-        for(int i = 0; i < 10; i++){
-            for (int j = 0; j < 10; j++){
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
                 batch.draw(background, i * 800, j * 600);
             }
         }
@@ -246,7 +232,7 @@ public class GravityForce implements Screen {
         for (Collectable collectable : collectables) {
             Sprite landingAreaSprite = collectable.getLandingArea();
             landingAreaSprite.draw(batch);
-            if(collectable.wasLanded()) landingAreaSprite.setColor(Color.GREEN);
+            if (collectable.wasLanded()) landingAreaSprite.setColor(Color.GREEN);
             else collectable.getGoldCoin().draw(batch);
         }
 
@@ -268,7 +254,7 @@ public class GravityForce implements Screen {
         uiBatch.end();
 
         //Debugging
-        if(debug) {
+        if (debug) {
             debug();
         }
 
@@ -364,7 +350,7 @@ public class GravityForce implements Screen {
         if (thrust_sound.getVolume() > 0 && !isMoving)
             thrust_sound.setVolume(thrust_sound.getVolume() - 2 * Gdx.graphics.getDeltaTime());
 
-        if(thrust_sound.getVolume() < 0) thrust_sound.setVolume(0);
+        if (thrust_sound.getVolume() < 0) thrust_sound.setVolume(0);
     }
 
     public void mapcollision() {
@@ -414,9 +400,9 @@ public class GravityForce implements Screen {
                     landingRotationFinished = true;
                 }
                 //Coin aufheben und Sound abspielen
-                if(!collectable.wasLanded()){
+                if (!collectable.wasLanded()) {
                     collectable.setWasLanded(true);
-                    coinCount +=1;
+                    coinCount += 1;
                     collectable.play();
                 }
             }
@@ -460,7 +446,7 @@ public class GravityForce implements Screen {
         }
     }
 
-    public void debug(){
+    public void debug() {
         //HitBox Shape
         ShapeRenderer shapeRenderer1 = new ShapeRenderer();
         shapeRenderer1.setProjectionMatrix(camera.combined);

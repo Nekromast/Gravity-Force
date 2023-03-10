@@ -7,23 +7,19 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Rocket {
-    Texture rocketImage;
-    Texture rocketEngine;
-    public static Sprite rocket;
-    public static Sprite rocketEngineSprite;
-
-    static float ROCKET_SCALE = 0.5f;
-    static float ENGINE_SCALE = 0.6f;
-
-    //Variablen für die Animation der Engine
-    static Animation<TextureRegion> rocketAnimation;
     private static final int FRAME_COLS = 8, FRAME_ROWS = 1;
     private static final float FRAME_DURATION = 0.125f;
-    float stateTime;
-
+    public static Sprite rocket;
+    public static Sprite rocketEngineSprite;
     //Health
     public static double health;
-
+    static float ROCKET_SCALE = 0.5f;
+    static float ENGINE_SCALE = 0.6f;
+    //Variablen für die Animation der Engine
+    static Animation<TextureRegion> rocketAnimation;
+    Texture rocketImage;
+    Texture rocketEngine;
+    float stateTime;
     //Hitbox
     Rectangle hitbox;
     int HITBOX_WIDTH = 40;
@@ -81,12 +77,12 @@ public class Rocket {
         return hitbox;
     }
 
-    public void setHealth(double newHealth) {
-        health = newHealth;
-    }
-
     public double getHealth() {
         return health;
+    }
+
+    public void setHealth(double newHealth) {
+        health = newHealth;
     }
 
     public void setRotation(float rotation) {
