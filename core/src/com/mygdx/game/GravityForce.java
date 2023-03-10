@@ -3,7 +3,6 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -74,7 +73,7 @@ public class GravityForce implements Screen {
     static Music thrust_sound;
     static Music background_music;
     static Music gameOverSound;
-    float THRUSTSOUND_VOLUME = 0.5f;
+    float THRUSTSOUND_MAXVOLUME = 0.3f;
     boolean wasPlayed;
 
     //Map
@@ -347,21 +346,20 @@ public class GravityForce implements Screen {
 
         // Abspielen des Tons bei der ersten Bewegung & nach Bufferzeit
         if (!wasPlayed) {
-            //sound_id = thrust_sound.play();
             thrust_sound.play();
             thrust_sound.setLooping(true);
             wasPlayed = true;
-
         }
-
         //Bei Bewegung wird der Sound lauter
-        if (isMoving && THRUSTSOUND_VOLUME + 1 * Gdx.graphics.getDeltaTime() < THRUSTSOUND_VOLUME) {
-            thrust_sound.setVolume( THRUSTSOUND_VOLUME += 1 * Gdx.graphics.getDeltaTime());
+        if (isMoving && (thrust_sound.getVolume() < THRUSTSOUND_MAXVOLUME)) {
+            thrust_sound.setVolume(thrust_sound.getVolume() + 1 * Gdx.graphics.getDeltaTime());
         }
 
         //Bei Stillstand wird der Sound schnell leiser
-        if (THRUSTSOUND_VOLUME - 2 * Gdx.graphics.getDeltaTime() > 0 && !isMoving)
-            thrust_sound.setVolume( THRUSTSOUND_VOLUME -= 2 * Gdx.graphics.getDeltaTime());
+        if (thrust_sound.getVolume() > 0 && !isMoving)
+            thrust_sound.setVolume(thrust_sound.getVolume() - 2 * Gdx.graphics.getDeltaTime());
+
+        if(thrust_sound.getVolume() < 0) thrust_sound.setVolume(0);
     }
 
     public void mapcollision() {
