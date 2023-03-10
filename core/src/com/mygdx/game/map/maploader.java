@@ -13,7 +13,7 @@ public class maploader {
     private OrthogonalTiledMapRenderer renderer;
 
     /**
-     * Konstruktor
+     * Constructor
      */
     public maploader() {
 
@@ -24,11 +24,14 @@ public class maploader {
 
     }
     /**
-     * @return gibt den AssetManager zurück
+     * Getter für den AssetManager
+     * @return assetManager
+     * AssetManager der die Map lädt
      */
     public AssetManager getAssetManager() {
         return assetManager;
     }
+
     /**
      * @return gibt die Map zurück
      */
@@ -38,7 +41,10 @@ public class maploader {
 
 
     /**
-     * entlädt alle Ressourcen
+     * entlädt alle Ressourcen des assetManager
+     */
+    /**
+     * entfernt den  assetManager aus dem Speicher
      */
     public void dispose() {
         assetManager.dispose();
