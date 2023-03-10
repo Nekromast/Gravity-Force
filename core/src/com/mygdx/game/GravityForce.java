@@ -33,6 +33,7 @@ public class GravityForce implements Screen {
 
     Rocket rock;
     Collectable collectables;
+    BaseStation baseStation;
 
     static Sprite rocket;
     Rectangle rocketrect;
@@ -120,7 +121,6 @@ public class GravityForce implements Screen {
         rocket = rock.getRocket();
         rocketEngineSprite = rock.getRocketEngine();
 
-        collectables = new Collectable();
 
         //Texturvariablen
         leftArrow = new Texture("ui/leftArrow.png");
@@ -132,6 +132,7 @@ public class GravityForce implements Screen {
         //Camera für die Ansicht
         camera = new OrthographicCamera();
         camera.setToOrtho(false, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+        camera.position.set(rocket.getX(), rocket.getY(), 0);
 
         uicamera = new OrthographicCamera();
         uicamera.setToOrtho(false, DISPLAY_WIDTH, DISPLAY_HEIGHT);
@@ -140,7 +141,7 @@ public class GravityForce implements Screen {
         //Die Rectangles für die Control Buttons
         leftButton = new Rectangle(0, 0, 80, 80);
         rightButton = new Rectangle(100, 0, 80, 80);
-        boostButton = new Rectangle(DISPLAY_WIDTH-100, 0, 100, 100);
+        boostButton = new Rectangle(DISPLAY_WIDTH - 100, 0, 100, 100);
         touchPos = new Vector3();
 
         //Health
@@ -167,6 +168,8 @@ public class GravityForce implements Screen {
         TmxMapLoader loader = new TmxMapLoader();
         map = loader.load("map/testmapc.tmx");
 
+        //Collectables
+        collectables = new Collectable();
         for (MapObject object : map.getLayers().get("objects").getObjects()) {
             float x = object.getProperties().get("x", Float.class) * MAPSCALE;
             float y = object.getProperties().get("y", Float.class) * MAPSCALE;
@@ -174,6 +177,13 @@ public class GravityForce implements Screen {
             float height = object.getProperties().get("height", Float.class) * MAPSCALE;
             collectables.addCollectable(x, y, width, height);
         }
+        //BaseStation
+        MapObject baseStationObject = map.getLayers().get("station").getObjects().get(0);
+        baseStation = new BaseStation(
+                baseStationObject.getProperties().get("x", Float.class) * MAPSCALE,
+                baseStationObject.getProperties().get("y", Float.class) * MAPSCALE,
+                baseStationObject.getProperties().get("width", Float.class) * MAPSCALE,
+                baseStationObject.getProperties().get("height", Float.class) * MAPSCALE);
     }
 
     @Override
@@ -214,6 +224,7 @@ public class GravityForce implements Screen {
         // Steuerung und Kollision der Rakete
         controlRocket();
         checkLanding(); //Needs to be called before velocity
+        checkBaseLanding();
         velocity();
         mapcollision();
         gravity();
@@ -236,9 +247,11 @@ public class GravityForce implements Screen {
         for (Sprite landing_area : collectables.getLandingAreas()) {
             landing_area.draw(batch);
         }
-        for(Sprite goldCoin : collectables.getCollectables()) {
+        for (Sprite goldCoin : collectables.getCollectables()) {
             goldCoin.draw(batch);
         }
+        baseStation.getBaseStation().draw(batch);
+
         tMapRend.render();
         batch.end();
 
@@ -296,7 +309,7 @@ public class GravityForce implements Screen {
         }
         // Falls die Rakete gelandet ist, soll sie nicht mehr beschleunigen können
         // bis sie richtig gedreht ist
-        if((hasLandedOnLandingArea && !landingRotationFinished)){
+        if ((hasLandedOnLandingArea && !landingRotationFinished)) {
             CURRENT_VELOCITY = 0;
         }
 
@@ -307,7 +320,8 @@ public class GravityForce implements Screen {
 
 
     public void gravity() {
-        if (!hasLandedOnLandingArea) rocket.setY(rocket.getY() + GRAVITY * Gdx.graphics.getDeltaTime());
+        if (!hasLandedOnLandingArea)
+            rocket.setY(rocket.getY() + GRAVITY * Gdx.graphics.getDeltaTime());
     }
 
     public void keepRocketInScreen() {
@@ -401,6 +415,30 @@ public class GravityForce implements Screen {
         }
     }
 
+    public void checkBaseLanding() {
+        Sprite base = baseStation.getBaseStation();
+        Rectangle landing_area = base.getBoundingRectangle();
+        if (landing_area.overlaps(rocket.getBoundingRectangle())) {
+            hasLandedOnLandingArea = true;
+            landingRotationFinished = false;
+            //Rotation zwischen 0 und 360 Grad halten
+            if (Math.toDegrees(Math.toRadians(rocket.getRotation())) > 360) {
+                rock.setRotation(rocket.getRotation() - 360);
+            }
+            //Rakete richtig drehen
+            if (rocket.getRotation() > 0 && rocket.getRotation() < 180) {
+                rock.setRotation(rocket.getRotation() - 1f);
+            } else {
+                rock.setRotation(rocket.getRotation() + 1f);
+            }
+            //Überprüfen ob die Rakete richtig gedreht ist
+            if (rocket.getRotation() < 1 && rocket.getRotation() > -1) {
+                landingRotationFinished = true;
+            }
+            score=(int)rock.getHealth();
+        }
+    }
+
     public void damage() {
         rock.setHealth((rock.getHealth() - 30 * Gdx.graphics.getDeltaTime()));
         System.out.println(rock.getHealth());
@@ -439,6 +477,7 @@ public class GravityForce implements Screen {
         collectables.dispose();
 
     }
+
     @Override
     public void resize(int width, int height) {
 

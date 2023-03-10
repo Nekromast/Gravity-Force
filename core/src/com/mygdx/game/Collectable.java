@@ -37,12 +37,6 @@ public class Collectable {
         collectables.add(goldCoin);
 
     }
-    /*
-    public void test(){
-
-    }
-
-     */
 
     //Update Funktion prüft die "Spawnzeiten" und ob das Objekt eingesammelt wurde
     public void checkLanding(Sprite rocket) {
